@@ -14,7 +14,7 @@ import (
 
 func main() {
 	var config dto.Config
-	util.LoadEnv(config)
+	util.LoadEnv(&config)
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -28,8 +28,8 @@ func main() {
 		Sort:     "coffee",
 		Customer: hostname,
 	}
-	wait := time.Duration(config.CustomerWait)
-	redis.Set(key, util.Marshal(order), wait)
+	wait := time.Duration(config.CustomerWait) * time.Millisecond
+	redis.Set(key, util.Marshal(order), 0)
 
 	time.Sleep(wait)
 

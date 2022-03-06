@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var config dto.Config
-	util.LoadEnv(config)
+	util.LoadEnv(&config)
 
 	redis := util.NewClient(config.Redis)
 	go func() {
@@ -20,9 +20,10 @@ func main() {
 			if val == "" {
 				continue
 			}
+			log.Info(val)
 			log.Infof("brewing %s (dur: %d millis)", val, config.BrewDuration)
-			time.Sleep(time.Duration(config.BrewDuration))
-			log.Infof(" -> ready\n", config.BrewDuration)
+			time.Sleep(time.Duration(config.BrewDuration) * time.Millisecond)
+			log.Infof(" -> ready\n")
 			redis.LPush(util.BREW_OUT+val, val)
 		}
 	}()

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 )
 
 var ctx = context.Background()
@@ -14,6 +15,7 @@ type Client struct {
 }
 
 func NewClient(addr string) *Client {
+	logrus.Info(addr)
 	rdb := redis.NewClient(&redis.Options{
 		Addr: addr,
 	})
@@ -21,14 +23,14 @@ func NewClient(addr string) *Client {
 }
 
 func (c *Client) LPush(key, val string) error {
-	err := c.rdb.LPush(ctx, key, val, 0).Err()
+	err := c.rdb.LPush(ctx, key, val).Err()
 	return err
 }
 
 func (c *Client) BRPop(key string) (string, error) {
 	val, err := c.rdb.BRPop(ctx, 10+time.Second, key).Result()
-	if len(val) > 0 {
-		return val[0], err
+	if len(val) >= 2 {
+		return val[1], err
 	}
 	return "", err
 }
@@ -39,9 +41,10 @@ func (c *Client) Set(key, val string, expiration time.Duration) error {
 }
 
 func (c *Client) GetDel(key string) (string, error) {
-	val, err := c.rdb.Do(ctx, "MULTI", "GET", key, "DEL", key, "EXEC").Result()
-	return val.(string), err
+	val, err := c.rdb.GetDel(ctx, key).Result()
+	return val, err
 }
+
 func (c *Client) AnyPattern(pattern string) (string, error) {
 	resp, err := c.rdb.Keys(ctx, pattern).Result()
 	for _, e := range resp {

@@ -6,8 +6,8 @@ import (
 )
 
 func LoadEnv(i interface{}) {
-	err := envconfig.Process("myapp", i)
+	err := envconfig.Process("", i)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal(err)
 	}
 }
