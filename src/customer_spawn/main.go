@@ -23,7 +23,7 @@ func main() {
 	util.LoadEnv(&config)
 	go metrics.StartMetricsBlock()
 
-	for range time.Tick(time.Second) {
+	for range time.Tick(time.Duration(5) * time.Second) {
 		count := rand.Intn(config.SpawnMax)
 		log.Infof("spawn %d jobs", count)
 		go createJobs(count, config.CustomerImg)
@@ -33,7 +33,7 @@ func main() {
 func createJobs(count int, img string) {
 	ns := namespace()
 	clientSet := connect()
-	job(clientSet, img, ns)
+	job(clientSet, img, "config", ns)
 }
 
 func connect() *kubernetes.Clientset {
@@ -57,7 +57,7 @@ func namespace() string {
 	return string(ns)
 }
 
-func job(clientset *kubernetes.Clientset, image, namespace string) {
+func job(clientset *kubernetes.Clientset, image, configmap, namespace string) {
 	jobSpec := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "customer-",
@@ -72,6 +72,13 @@ func job(clientset *kubernetes.Clientset, image, namespace string) {
 						{
 							Name:  "customer",
 							Image: image,
+							EnvFrom: []corev1.EnvFromSource{
+								{
+									ConfigMapRef: &corev1.ConfigMapEnvSource{
+										LocalObjectReference: {Name: "foo"},
+									},
+								},
+							},
 							// todo: add envFrom
 						},
 					},
@@ -84,6 +91,7 @@ func job(clientset *kubernetes.Clientset, image, namespace string) {
 
 	_, err := jobs.Create(context.Background(), jobSpec, metav1.CreateOptions{})
 	if err != nil {
+		log.Error(err)
 		log.Fatalln("Failed to create K8s job.")
 	}
 
