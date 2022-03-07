@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: coffee-shop
+    component: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coffee-shop
+      component: redis
+  template:
+    metadata:
+      labels:
+        app: coffee-shop
+        component: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - mountPath: /data/redis
+          name: data
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app: coffee-shop
+    component: redis
+  ports:
+    - protocol: TCP
+      name: http
+      port: 6379
+      targetPort: redis
+...

@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: customer
+spec:
+  parallelism: 6
+  completions: 86
+  template:
+    spec:
+      containers:
+      - name: customer
+        image: ghcr.io/fluktuid/coffee-shop/customer
+        envFrom:
+        - configMapRef:
+            name: config
+      restartPolicy: Never
+

@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  REDIS: redis:6379
+  BREW_DURATION: "1000"
+  CUSTOMER_WAIT: "5000"
+...

@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: barista
+  labels:
+    app: coffee-shop
+    component: barista
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coffee-shop
+      component: barista
+  template:
+    metadata:
+      labels:
+        app: coffee-shop
+        component: barista
+    spec:
+      containers:
+      - name: barista
+        image: ghcr.io/fluktuid/coffee-shop/barista
+        envFrom:
+        - configMapRef:
+            name: config
+        ports:
+        - name: "http"
+          containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: barista
+spec:
+  selector:
+    app: coffee-shop
+    component: barista
+  ports:
+    - protocol: TCP
+      name: http
+      port: 80
+      targetPort: http
+...
