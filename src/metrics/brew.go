@@ -24,6 +24,14 @@ var (
 		Name: "coffeeshop_unsuccessful",
 		Help: "The total number of brewed coffees",
 	})
+	spawn = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "coffeeshop_spawn_total",
+		Help: "The total number of brewed coffees",
+	})
+	spawnGauge = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "coffeeshop_spawn",
+		Help: "The total number of brewed coffees",
+	})
 )
 
 func Brew(sort string) {
@@ -58,4 +66,9 @@ func Customer(success bool) {
 	} else {
 		unsuccessful.Inc()
 	}
+}
+
+func Spawn(cnt int) {
+	spawn.Add(float64(cnt))
+	spawnGauge.Set(float64(cnt))
 }
