@@ -75,7 +75,9 @@ func job(clientset *kubernetes.Clientset, image, configmap, namespace string) {
 							EnvFrom: []corev1.EnvFromSource{
 								{
 									ConfigMapRef: &corev1.ConfigMapEnvSource{
-										LocalObjectReference: {Name: "foo"},
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "foo",
+										},
 									},
 								},
 							},
