@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spawn
+  labels:
+    app: coffee-shop
+    component: spawn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coffee-shop
+      component: spawn
+  template:
+    metadata:
+      labels:
+        app: coffee-shop
+        component: spawn
+    spec:
+      serviceAccountName: spawn
+      automountServiceAccountToken: true
+      containers:
+      - name: spawn
+        image: ghcr.io/fluktuid/coffee-shop/customer_spawn
+        envFrom:
+        - configMapRef:
+            name: config
+
+...
