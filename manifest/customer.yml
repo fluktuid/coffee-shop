@@ -14,4 +14,3 @@ spec:
         - configMapRef:
             name: config
       restartPolicy: Never
-
