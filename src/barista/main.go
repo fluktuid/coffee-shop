@@ -6,13 +6,14 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/fluktuid/coffee-shop/src/dto"
+	"github.com/fluktuid/coffee-shop/src/metrics"
 	"github.com/fluktuid/coffee-shop/src/util"
 )
 
 func main() {
 	var config dto.Config
-
 	util.LoadEnv(&config)
+	go metrics.StartMetricsBlock()
 
 	redis := util.NewClient(config.Redis)
 	go func() {
@@ -26,6 +27,7 @@ func main() {
 			var order dto.Coffee
 			util.Unmarshal(orderStr, &order)
 			if order.Sort != "" && order.Customer != "" {
+				metrics.Order(order.Sort)
 				logrus.Infof(" - trying to brew %s\n", order.Sort)
 				redis.LPush(util.BREW_IN, order.Sort)
 				coffee, err := redis.BRPop(util.BREW_OUT + order.Sort)

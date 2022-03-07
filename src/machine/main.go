@@ -6,12 +6,14 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/fluktuid/coffee-shop/src/dto"
+	"github.com/fluktuid/coffee-shop/src/metrics"
 	"github.com/fluktuid/coffee-shop/src/util"
 )
 
 func main() {
 	var config dto.Config
 	util.LoadEnv(&config)
+	go metrics.StartMetricsBlock()
 
 	redis := util.NewClient(config.Redis)
 	go func() {
@@ -20,7 +22,7 @@ func main() {
 			if val == "" {
 				continue
 			}
-			log.Info(val)
+			metrics.Brew(val)
 			log.Infof("brewing %s (dur: %d millis)", val, config.BrewDuration)
 			time.Sleep(time.Duration(config.BrewDuration) * time.Millisecond)
 			log.Infof(" -> ready\n")

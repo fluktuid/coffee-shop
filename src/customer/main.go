@@ -9,12 +9,14 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/fluktuid/coffee-shop/src/dto"
+	"github.com/fluktuid/coffee-shop/src/metrics"
 	"github.com/fluktuid/coffee-shop/src/util"
 )
 
 func main() {
 	var config dto.Config
 	util.LoadEnv(&config)
+	go metrics.StartMetricsBlock()
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -37,8 +39,16 @@ func main() {
 
 	if err != nil || resp == "" {
 		log.Warn("Order not successful")
-		log.Exit(1)
-	}
+		metrics.Customer(false)
 
-	log.Infof("Got %s\n", resp)
+		// sleep for metrics scraper
+		time.Sleep(time.Duration(2) * time.Second)
+		log.Exit(1)
+	} else {
+		metrics.Customer(true)
+		log.Infof("Got %s\n", resp)
+
+		// sleep for metrics scraper
+		time.Sleep(time.Duration(2) * time.Second)
+	}
 }
