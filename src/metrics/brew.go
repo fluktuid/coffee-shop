@@ -36,28 +36,26 @@ var (
 
 func Brew(sort string) {
 	brew.Inc()
-	sort_ctr := brew_sort[sort]
-	if sort_ctr == nil {
+	if brew_sort[sort] == nil {
 		sort_ctr := promauto.NewCounter(prometheus.CounterOpts{
 			Name: "coffeeshop_brews_" + sort,
 			Help: "The total number of brewed " + sort,
 		})
 		brew_sort[sort] = sort_ctr
 	}
-	sort_ctr.Inc()
+	brew_sort[sort].Inc()
 }
 
 func Order(sort string) {
 	order.Inc()
-	sort_ctr := order_sort[sort]
-	if sort_ctr == nil {
+	if order_sort[sort] == nil {
 		sort_ctr := promauto.NewCounter(prometheus.CounterOpts{
 			Name: "coffeeshop_order_" + sort,
 			Help: "The total number of brewed " + sort,
 		})
 		order_sort[sort] = sort_ctr
 	}
-	sort_ctr.Inc()
+	order_sort[sort].Inc()
 }
 
 func Customer(success bool) {
